@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黄秋婧的生日贺卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffd166 0%, #ff9a8b 50%, #ff6b6b 100%);
+            position: relative;
+            height: 100vh;
+        }
+
+        /* 背景动画元素 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .falling-item {
+            position: absolute;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .leaf {
+            width: 30px;
+            height: 30px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 Q30 30 20 50 Q10 70 20 85 Q30 95 50 90 Q70 95 80 85 Q90 70 80 50 Q70 30 50 10" fill="%23ff6b6b"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .star {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #fff 0%, transparent 70%);
+            border-radius: 50%;
+            animation: twinkle 2s infinite, fall linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .confetti {
+            width: 10px;
+            height: 10px;
+            background: #ffd166;
+            animation: confetti-fall 3s infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
+
+        /* 主容器 */
+        .card-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .page {
+            position: absolute;
+            width: 80%;
+            max-width: 800px;
+            height: 80%;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            animation: pageIn 0.6s ease-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes pageIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* 首页特殊样式 */
+        .home-page .date-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px 40px;
+            border-radius: 15px;
+            margin: 10px;
+            font-size: 24px;
+            color: #ff6b6b;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .home-page .date-box.second {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .home-text {
+            margin-top: 30px;
+            font-size: 20px;
+            color: #ff6b6b;
+            opacity: 0;
+            animation: fadeIn 1s 1s forwards;
+            font-weight: bold;
+        }
+
+        .start-arrow {
+            margin-top: 30px;
+            font-size: 40px;
+            color: #ff6b6b;
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeIn 1s 1.5s forwards, bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 普通页面样式 */
+        .page-image {
+            max-width: 60%;
+            max-height: 50%;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .page-text {
+            font-size: 24px;
+            color: #ff6b6b;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 导航按钮 */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-button.prev {
+            left: 20px;
+        }
+
+        .nav-button.next {
+            right: 20px;
+        }
+
+        /* 蛋糕页面 */
+        .cake-page {
+            position: relative;
+        }
+
+        .cake-container {
+            text-align: center;
+            opacity: 0;
+            animation: cakeAppear 2s forwards;
+        }
+
+        @keyframes cakeAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.5) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .cake {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .cake svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .candle {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .flame {
+            opacity: 0;
+            animation: flicker 0.5s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { transform: scale(1) rotate(-2deg); }
+            50% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        .cake-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cake-button:hover {
+            background: #ff5252;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .birthday-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 60px;
+            color: #ff6b6b;
+            font-weight: bold;
+            opacity: 0;
+            z-index: 30;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .birthday-text.show {
+            animation: popup 1s forwards;
+        }
+
+        @keyframes popup {
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        /* 礼花效果 */
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: firework 1s ease-out forwards;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* 音乐控制 */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 1);
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="QIUQIU/YOUR_MUSIC_FILE.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 音乐控制按钮 -->
+    <div class="music-control" onclick="toggleMusic()">
+        <span id="musicIcon">🎵🎵</span>
+    </div>
+
+    <!-- 背景动画 -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <!-- 主卡片容器 -->
+    <div class="card-container">
+        <!-- 第1页：首页 -->
+        <div class="page home-page active" id="page1">
+            <div class="date-box">2001年9月25日</div>
+            <div class="date-box second">2025年9月25日</div>
+            <div class="home-text">9月25日，是一个特殊的日子···</div>
+            <div class="start-arrow" onclick="nextPage()">→</div>
+        </div>
+
+        <!-- 第2页 -->
+        <div class="page" id="page2">
+            
+            <p class="page-text">世界，因你的出现，从喧嚣盛夏走进了宁静深秋。</p>
+        </div>
+
+        <!-- 第3页 -->
+        <div class="page" id="page3">
+            
+            <p class="page-text">愿你的快乐，不像秋叶般转瞬，而要像秋阳般恒久温暖。</p>
+        </div>
+
+        <!-- 第4页 -->
+        <div class="page" id="page4">
+            
+            <p class="page-text">又一岁，愿故事的下一页，依旧写满如秋天般的丰盈与静好。</p>
+        </div>
+
+        <!-- 第5页 -->
+        <div class="page" id="page5">
+            
+            <p class="page-text">你不必追逐光，因为你就是光本身。</p>
+        </div>
+
+        <!-- 第6页 -->
+        <div class="page" id="page6">
+            
+            <p class="page-text">在这一年中最美的季节，庆祝世界上最美的你，诞生于世。</p>
+        </div>
+
+        <!-- 第7页 -->
+        <div class="page" id="page7">
+            
+            <p class="page-text">岁月为你加冕，像秋天为山林渲染金边。生日快乐，永远的公主殿下。</p>
+        </div>
+
+        <!-- 第8页 -->
+        <div class="page" id="page8">
+            
+            <p class="page-text">我向秋天许个愿，愿你的双眸，永远清澈。</p>
+        </div>
+        
+        <!-- 第9页 -->
+        <div class="page" id="page9">
+            
+            <p class="page-text">你要永远自信，永远美丽。</p>
+        </div>
+       
+        <!-- 第10页：蛋糕页 -->
+        <div class="page cake-page" id="page10">
+            <div class="cake-container">
+                <div class="cake">
+                    <svg viewBox="0 0 300 300">
+                        <!-- 蛋糕底层 -->
+                        <ellipse cx="150" cy="200" rx="100" ry="30" fill="#8B4513"/>
+                        <rect x="50" y="150" width="200" height="50" fill="#D2691E"/>
+                        <ellipse cx="150" cy="150" rx="100" ry="30" fill="#D2691E"/>
+                        
+                        <!-- 蛋糕中层 -->
+                        <ellipse cx="150" cy="140" rx="70" ry="20" fill="#8B4513"/>
+                        <rect x="80" y="100" width="140" height="40" fill="#FFE4B5"/>
+                        <ellipse cx="150" cy="100" rx="70" ry="20" fill="#FFE4B5"/>
+                        
+                        <!-- 蛋糕顶层 -->
+                        <ellipse cx="150" cy="90" rx="40" ry="15" fill="#8B4513"/>
+                        <rect x="110" y="60" width="80" height="30" fill="#FFEFD5"/>
+                        <ellipse cx="150" cy="60" rx="40" ry="15" fill="#FFEFD5"/>
+                        
+                        <!-- 装饰 -->
+                        <circle cx="120" cy="80" r="5" fill="#FF69B4"/>
+                        <circle cx="150" cy="85" r="5" fill="#FF69B4"/>
+                        <circle cx="180" cy="80" r="5" fill="#FF69B4"/>
+                        
+                        <!-- 蜡烛 -->
+                        <rect x="145" y="30" width="10" height="30" fill="#FFD700"/>
+                        
+                        <!-- 火焰 -->
+                        <g class="flame" id="flame">
+                            <ellipse cx="150" cy="20" rx="8" ry="15" fill="#FF4500"/>
+                            <ellipse cx="150" cy="15" rx="5" ry="10" fill="#FFA500"/>
+                            <ellipse cx="150" cy="10" rx="3" ry="5" fill="#FFFF00"/>
+                        </g>
+                    </svg>
+                </div>
+                <button class="cake-button" id="lightBtn" onclick="lightCandle()">点燃许愿</button>
+                <button class="cake-button" id="blowBtn" onclick="blowCandle()" style="display:none;">吹灭蜡烛</button>
+            </div>
+            <div class="birthday-text" id="birthdayText">生日快乐！</div>
+        </div>
+
+        <!-- 导航按钮 -->
+        <button class="nav-button prev" onclick="prevPage()">←</button>
+        <button class="nav-button next" onclick="nextPage()">→</button>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 10; // 更新总页数为10
+        let musicPlaying = false;
+
+        // 创建背景动画
+        function createBackgroundAnimation() {
+            const bgAnimation = document.getElementById('bgAnimation');
+            
+            // 创建落叶
+            for (let i = 0; i < 10; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'falling-item leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                leaf.style.animationDelay = Math.random() * 5 + 's';
+                bgAnimation.appendChild(leaf);
+            }
+            
+            // 创建星星
+            for (let i = 0; i < 15; i++) {
+                const star = document.createElement('div');
+                star.className = 'falling-item star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                bgAnimation.appendChild(star);
+            }
+            
+            // 创建彩带
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'falling-item confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = ['#ffd166', '#ff9a8b', '#ff6b6b', '#06d6a0', '#118ab2'][Math.floor(Math.random() * 5)];
+                confetti.style.animationDuration = (Math.random() * 4 + 3) + 's';
+                confetti.style.animationDelay = Math.random() * 4 + 's';
+                bgAnimation.appendChild(confetti);
+            }
+        }
+
+        // 翻页功能
+        function showPage(pageNum) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`page${pageNum}`).classList.add('active');
+            
+            // 更新导航按钮显示
+            const prevBtn = document.querySelector('.nav-button.prev');
+            const nextBtn = document.querySelector('.nav-button.next');
+            
+            prevBtn.style.display = pageNum === 1 ? 'none' : 'flex';
+            nextBtn.style.display = pageNum === totalPages ? 'none' : 'flex';
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        }
+
+        // 蛋糕互动功能
+        function lightCandle() {
+            const flame = document.getElementById('flame');
+            const lightBtn = document.getElementById('lightBtn');
+            const blowBtn = document.getElementById('blowBtn');
+            
+            flame.style.opacity = '1';
+            lightBtn.style.display = 'none';
+            blowBtn.style.display = 'inline-block';
+        }
+
+        function blowCandle() {
+            const flame = document.getElementById('flame');
+            const blowBtn = document.getElementById('blowBtn');
+            const birthdayText = document.getElementById('birthdayText');
+            
+            flame.style.opacity = '0';
+            blowBtn.style.display = 'none';
+            
+            // 创建礼花效果
+            createFireworks();
+            
+            // 显示生日祝福
+            setTimeout(() => {
+                birthdayText.classList.add('show');
+            }, 500);
+        }
+
+        function createFireworks() {
+            const colors = ['#ffd166', '#ff9a8b', '#ff6b6b', '#06d6a0', '#118ab2'];
+            const cakeContainer = document.querySelector('.cake-container');
+            
+            for (let i = 0; i < 50; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.left = (Math.random() * 200 + 50) + 'px';
+                firework.style.top = (Math.random() * 200 + 50) + 'px';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 100 + 50;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                firework.style.transform = `translate(${tx}px, ${ty}px)`;
+                firework.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                cakeContainer.appendChild(firework);
+                
+                setTimeout(() => {
+                    firework.remove();
+                }, 1500);
+            }
+        }
+
+        // 音乐控制
+        function toggleMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicIcon = document.getElementById('musicIcon');
+            
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicIcon.textContent = '🎵🎵';
+            } else {
+                bgMusic.play().catch(e => {
+                    console.log('音乐播放失败:', e);
+                    // 尝试解除静音后播放
+                    bgMusic.muted = false;
+                    bgMusic.play();
+                });
+                musicIcon.textContent = '🔇🔇';
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // 初始化
+        window.onload = function() {
+            createBackgroundAnimation();
+            showPage(1);
+            
+            // 尝试自动播放音乐
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.5;
+            
+            // 用户交互后尝试播放音乐
+            document.addEventListener('click', function() {
+                if (!musicPlaying) {
+                    bgMusic.play().then(() => {
+                        musicPlaying = true;
+                        document.getElementById('musicIcon').textContent = '🔇🔇';
+                    }).catch(e => {
+                        console.log('自动播放失败:', e);
+                    });
+                }
+            }, { once: true });
+        };
+    </script>
+</body>
+</html>
